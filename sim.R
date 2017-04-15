@@ -1,3 +1,5 @@
+##these are aux functions. the main simulation is in sim_run.R
+
 sim<-function(L,k) { #this simulates everything based on a few key parameters
     h<-function(df,k) { #this computes the basic segregation statistic based on a value for k and:
                                         #a data frame "df" that contains columns
@@ -13,7 +15,7 @@ sim<-function(L,k) { #this simulates everything based on a few key parameters
         for (grp in grps) {
             df[df$g==grp,]->tmp
             p(tmp$o,k)->po
-        nrow(tmp)->n
+            nrow(tmp)->n
             S[[as.character(grp)]]<-(n/(nrow(df)*epk))*(epk-ent(po))
         }
         sum(unlist(S))
@@ -22,39 +24,16 @@ sim<-function(L,k) { #this simulates everything based on a few key parameters
     for (i in 1:length(L)) assign(names(L)[i],L[[i]])
     ##
     out.true<-out<-numeric()
-    for (i in 1:10) {
+    for (i in 1:niter) { #we are going to run each simulation condition niter times
 ############################################
-                                        #old
-        ## theta<-rnorm(N)
-        ##                                 #error
-        ## e<-rnorm(N,mean=0,sd=err.sd)
-        ## o<-theta+e
-        ##                                 #group assignment
-        ##                                 #g<-sample(letters,1000,replace=TRUE)
-        ## rnorm(n.school,mean=0,sd=sig)->M
-        ## rep(.5,length(M))->S
-        ## cbind(M,S)->schools
-        ## assign.school<-function(y,schools) {
-        ##     out<-numeric()
-        ##     for (j in 1:nrow(schools)) dnorm(y,mean=schools[j,1],sd=sqrt(schools[j,2]))->out[j]
-        ##     out/sum(out)->out
-        ##     require(Hmisc)
-        ##     rMultinom(matrix(out,nrow=1),1)
-        ## }
-        ## sapply(theta,assign.school,schools=schools)->sch
-        ## data.frame(o=o,g=sch)->df
-        ## h(df,k)->out[i]
-        ## data.frame(o=theta,g=sch)->df
-        ## h(df,k)->out.true[i]
-############################################
-                                        #new
+                                        #new school assignment procedure
         rnorm(n.school,mean=0,sd=sig)->M
-        rep(.5,length(M))->S
+        rep(.5,n.school)->S
         cbind(M,S)->schools
         tmp<-list()
         for (ii in 1:nrow(schools)) {
-            rnorm(500,schools[ii,1],schools[ii,2])->th
-            rnorm(500,0,sd=err.sd)->e
+            rnorm(Nperschool,schools[ii,1],schools[ii,2])->th
+            rnorm(Nperschool,0,sd=err.sd)->e
             cbind(ii,th,th+e)->tmp[[ii]]
         }
         do.call("rbind",tmp)->tmp
@@ -76,9 +55,9 @@ graf<-function(hold) {
     strsplit(names(hold)," ")->nms
     sapply(nms,"[",1)->tmp
     for (i in 1:length(tmp)) mtext(side=1,at=i,tmp[i],line=0.25,,cex=.7)
-    mtext(side=1,line=.25,at=-2,"sch sd",adj=0)
+    #mtext(side=1,line=.25,at=-2,"sch sd",adj=0)
     sapply(nms,"[",2)->tmp
     for (i in 1:length(tmp)) mtext(side=1,at=i,tmp[i],line=1,cex=.7)
-    mtext(side=1,line=1,at=-2,"err sd",adj=0)
+    #mtext(side=1,line=1,at=-2,"err sd",adj=0)
     lines(xx[,2],type="l",col="red",lwd=2)
 }
