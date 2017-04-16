@@ -42,7 +42,8 @@ sim<-function(L,k) { #this simulates everything based on a few key parameters
         h(df,k,ent=ent)->out.true[i]
 ############################################
     }
-    c(obs=mean(out),true=mean(out.true))
+    1:niter->iter
+    cbind(iter,out,out.true) #c(obs=mean(out),true=mean(out.true))
 }
 
 

@@ -17,17 +17,20 @@ for (k in qnorm(seq(.1,.9,by=.1))) {
     makeCluster(4)->cl #modify this (e.g., change 4 to X) where X is the number of local processors. 
     clusterApply(cl,L,sim,k=k)->hold
     stopCluster(cl)
-    names(L)->names(hold)
+    strsplit(names(L)," ")->txt
+    for (i in 1:length(hold)) {
+        txt[[i]]->tmp
+        nrow(hold[[i]])->nr
+        matrix(tmp,byrow=TRUE,nr,length(tmp))->tmp
+        names(tmp)<-c("k","sch.sd","err.sd","segfun")
+        cbind(tmp,hold[[i]])->tmp
+        tmp->hold[[i]]
+    }
     do.call("rbind",hold)->tab[[as.character(k)]]
 }
 do.call("rbind",tab)->tab
-strsplit(rownames(tab)," ")->txt
 data.frame(tab)->tab
-NULL->rownames(tab)
-data.frame(do.call("rbind",txt))->tmp
-names(tmp)<-c("k","sch.sd","err.sd","segfun")
-data.frame(tmp,tab)->tab
-write.csv(tab,"")
+write.csv(tab,"",row.names=FALSE)
 
 
 
